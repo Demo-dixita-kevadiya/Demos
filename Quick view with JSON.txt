@@ -1,4 +1,4 @@
-//quick view with json
+//quick view with json 
 
 $('body').on('click','.quick-btn',function(e){
   		e.preventDefault();
