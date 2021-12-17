@@ -1,3 +1,6 @@
+Mailchimp form action URL
+//masoncases.us15.list-manage.com/subscribe/post-json?u=aa5032c7819954863768248b7&amp;id=c2d9da554e&amp;c=?
+
 
 var form = $('.single-option-selector').closest('form');
 	form.append('<div id="swatch"></div>');
