@@ -7,6 +7,32 @@ GET Particular block data
 
 
 
+
+var JSONObj = [];
+JSONObj.push({
+          quantity: qty,
+          id: id,
+          "properties": {
+            "shipping_interval_frequency": shipfrqc,
+            "shipping_interval_unit_type": shipintrvl,
+            "Donation Trust": donation
+          }
+        });
+$.post('/cart/add.js', {
+      items: JSONObj,
+      success: function(item) {
+        setTimeout(function(){
+          window.location.href = '/cart';         
+        },500);
+      },
+      error: function() {
+        console.log('error');
+      }
+    });
+    
+
+
+
 var form = $('.single-option-selector').closest('form');
 	form.append('<div id="swatch"></div>');
 	$('.single-option-selector').each(function(){
