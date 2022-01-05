@@ -1,0 +1,49 @@
+//setup insta without app
+https://www.huratips.com/tech-tips/how-to-add-an-instagram-feed-section-in-shopify-without-app-and-instagram-api.html 
+//setup insta without app
+
+<p>-------------------------------------------------------------</p>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    {%- form 'customer', id: 'ContactFooter', class: 'footer__newsletter newsletter-form' -%}
+    <input type="hidden" name="contact[tags]" value="newsletter">
+    <input
+           type="email"
+           name="contact[email]"
+           value="{{ form.email }}"
+           placeholder="Email"
+           required
+           >
+    <input
+           type="text"
+           name="contact[first_name]"
+           value=""
+           required
+           placeholder="First name"
+           >
+    <select name="fitness_goals">
+      <option value="" selected="" disabled>Select a Fitness Goal</option>
+      <option value="Build Muscle">Build Muscle</option>
+      <option value="Performance">Performance</option>
+      <option value="Weight Loss">Weight Loss</option>
+    </select>
+    <button type="submit" name="commit" aria-label="{{ 'newsletter.button_label' | t }}">
+      {% render 'icon-arrow' %}
+    </button>
+
+    {%- if form.errors -%}
+    <small class="newsletter-form__message form__message" id="ContactFooter-error">{% render 'icon-error' %}{{ form.errors.translated_fields['email'] | capitalize }} {{ form.errors.messages['email'] }}</small>
+    {%- endif -%}
+    {%- if form.posted_successfully? -%}
+    <h3 class="newsletter-form__message newsletter-form__message--success form__message" id="ContactFooter-success" tabindex="-1" autofocus>{% render 'icon-success' %}{{ 'newsletter.success' | t }}</h3>
+    {%- endif -%}
+    {%- endform -%}
+    <script>
+      $(document).ready(function(){
+        $('body').on('change','select[name=fitness_goals]',function(e){
+          e.preventDefault();
+          var form = $(this).closest('form');
+          form.find('input[name="contact[tags]"]').val('newsletter, '+ $(this).val())
+        });
+      });
+    </script>
+    <p>-------------------------------------------------------------</p>
