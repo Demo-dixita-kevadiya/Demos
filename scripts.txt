@@ -2,6 +2,8 @@ Mailchimp form action URL
 //masoncases.us15.list-manage.com/subscribe/post-json?u=aa5032c7819954863768248b7&amp;id=c2d9da554e&amp;c=?
 
 
+function call(){ } window.onpaint = call();
+
 GET Particular block data
 {% assign image_blocks = section.blocks | where: 'type', 'image' %}
 
