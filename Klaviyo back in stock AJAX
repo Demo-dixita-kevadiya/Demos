@@ -1,0 +1,59 @@
+//Add before </body> tag
+<script src="https://static.klaviyo.com/onsite/js/klaviyo.js?company_id=Hj5HGm"></script>
+
+
+//Widget HTML
+<div {% if product.selected_or_first_available_variant.available %}style="display: none;"{% endif %} class="form-klaviyo-bis" klaviyo-bis="" data-klaviyo-id="PUBLIC_API_KEY" data-product-id="{{ product.id }}" data-variant-id="{{ product.selected_or_first_available_variant.id }}">
+  <div class="out-of-stock">
+    <p class="oos-text">variant sold out.<br>Sign up &amp; we'll let you know when they're back!</p>
+  </div>    
+  <input type="email" placeholder="Sign up for back in stock notifications" class="input-group-field Form__Input" aria-label="" autocorrect="off" autocapitalize="off" klaviyo-bis-email="">
+  <span class="btn btn--full uppercase Button Button--secondary Button--full" klaviyo-bis-btn="">
+    <span class="btn__border"></span>
+    <span class="btn__bg"></span>
+    <span class="btn__text">Let me know when they're back!</span>
+  </span>
+  <p klaviyo-bis-error=""  style="display:none;">Please enter a valid email address.</p>
+  <p klaviyo-bis-success=""  style="display:none;">Gotcha! We'll let you know.</p>
+</div>
+
+
+//JS
+<script>  
+  $(document).ready(function(){
+    var $form = $('[klaviyo-bis]');
+    if (!$form.length) {
+      return;
+    }
+    $form.find('[klaviyo-bis-btn]').click(function(e) {
+      e.preventDefault();
+      var klaviyoId = $form.attr('data-klaviyo-id'),
+          productId = $form.attr('data-product-id'),
+          variantId = $form.attr('data-variant-id'),
+          email = $form.find('[klaviyo-bis-email]').val();
+      function isEmail(email) {
+        var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+        return regex.test(email);
+      }
+      if (isEmail(email)) {
+        $form.find('[klaviyo-bis-error]').hide();
+        $.ajax({
+          'type': 'POST',
+          'url': 'https://a.klaviyo.com/onsite/components/back-in-stock/subscribe',
+          'data': {
+            'a': klaviyoId,
+            'email': email,
+            'product': productId,
+            'variant': variantId,
+            'platform': 'shopify'
+          },
+          success: function(result) {
+            $form.find('[klaviyo-bis-success]').show();
+          }
+        });
+      } else {
+        $form.find('[klaviyo-bis-error]').show();
+      }
+    });
+  });
+</script>
