@@ -1,0 +1,254 @@
+<div id="search-overlay" class="block">
+  <div class="centered">
+    <div id='search-box'>
+      <div id="close-btn">{%- include 'icons' with 'close' as close -%}</div>
+      <form action="{{ routes.search_url }}" id='search-form' target='_top'>
+        <input id='search-text' name='q' placeholder='Search' type='text' value="{{ search.terms | escape }}" autocomplete="off" />
+<!--         <input type="hidden" name="type" value="product"> -->
+        <button id='search-button' type='submit' method='get'>                     
+          <span>Search</span>
+        </button>
+        
+        <div class="autocomplete predictive-div">
+          <div class="main-wrap" style="display: flex; left: 0px; right: auto;">
+            <div class="product_wrap">
+              <p class="title"></p>
+              <ul id="searchResult"></ul>
+            </div>
+            <div class="artcle_wrap">
+              <p class="articletitle"></p>
+              <ul id="articlesearchResult"></ul>
+            </div>
+          </div>
+          <button class="predictive-search__item predictive-search__item--term" tabindex="-1">
+            {{ 'general.search.search_for' | t: terms: search.terms }}
+            {%- include 'icons' with 'arrow_right' as arrow_right -%} 
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+  .product_wrap, .artcle_wrap {
+    width: 100%;
+  }
+  
+  #search-overlay{
+    display:none;
+  }
+  .block {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom:0 ;
+    left: 0;
+    text-align: center;
+    background: rgb(201, 251, 245, 0.92);
+    border: none;
+    margin: 0;
+    z-index: 999;
+    overflow: auto;
+  }
+
+  .block:before {
+    content: '';
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+    margin-right: 0;
+    /* Adjusts for spacing */
+    /* For visualization 
+    background: #808080; width: 5px;
+    */
+  }
+
+  .centered {
+    vertical-align: middle;
+    width: 50%;
+    padding: 10px 15px;
+    color: #FFF;
+    border: none;
+    background: transparent;
+    position: absolute;
+    top: 0;
+    left: 25%;
+  }
+
+  #search-box {
+    position: relative;
+    width: 100%;
+    margin: 0;
+  }
+
+  #search-form {
+    height: 3em;
+    border: 1px solid #999;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+    background-color: #fff;
+  }
+
+  #search-text {
+    font-size: 14px;
+    color: #ddd;
+    border-width: 0;
+    background: transparent;
+  }
+
+  #search-box input[type="text"] {
+    width: 90%;
+    padding: 10px;
+    color: #333;
+    outline: none;
+    font-size: 1.4em;
+  }
+
+  #search-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 3.4em;
+    width: 100px;
+    font-size: 14px;
+    color: #f1ffff;
+    text-align: center;
+    line-height: 42px;
+    border-width: 0;
+    background-color: #00212c;
+    -webkit-border-radius: 0 2px 2px 0;
+    -moz-border-radius: 0 2px 2px 0;
+    border-radius: 0 2px 2px 0;
+    cursor: pointer;
+  }
+  h1{
+    text-align: center;
+    font-size: 3.5em;
+    color: #fff;
+    margin-top: 2em;
+    font-weight: 600;
+  }
+  h1 span{
+    background: #222;
+    padding: 10px;
+  }
+  #close-btn{
+    position: fixed;
+    top: 1em;
+    right: 1em;
+  }
+  #close-btn:hover{
+    color: #777;
+    cursor: pointer;
+  }
+  #close-btn svg path {
+    fill: #00212c;
+  }
+  #searchResult img, #articlesearchResult img{
+    width: 100%;
+    max-width: 100px;
+  }
+  #searchResult li a ,  #articlesearchResult li a{
+  display: inline-flex;
+  }
+  .predictive_main {
+    padding: 0 20px;
+  }
+  p.title, p.articletitle, .predictive_main {
+    color: #00212c;
+    padding: 10px;
+  }
+  button.predictive-search__item.predictive-search__item--term {
+    background: white;
+    border: 0;
+    height: 100%;
+    width: 100%;
+    color: black;
+    padding: 10px;
+    margin: 10px 0;
+  }
+</style>
+
+<script>
+  $('.predictive-search__item--term').empty().hide();
+  // predictive search start
+  $('body').on('keyup focus keydown focusout','input[name="q"]',function(){
+    var q = $(this).val();
+    var search_result = $(this).parents().find('.autocomplete .product_wrap ul#searchResult');
+    var b = '&resources[type]=product,article,collection,page';
+    if(q != ''){
+      $.ajax('/search/suggest.json?q=' + q + b,{
+        type: 'GET',
+        dataType: 'json', // added data type
+        success: function(response) {
+          console.log(response.resources.results);
+          var productSuggestions = response.resources.results.products;
+          var articleSuggestions = response.resources.results.articles;
+          var l = productSuggestions.length;
+          var m = articleSuggestions.length;
+          var mf = "{{shop.money_with_currency_format}}"; 
+
+          if (m > 0) {
+            $('.articletitle').html("article Found");
+            $('#articlesearchResult').empty();
+            for( var i = 0; i<4; i++){
+              var price = articleSuggestions[i]['price'];
+              var title = articleSuggestions[i]['title'];
+              var imgsrc = articleSuggestions[i]['featured_image'];
+              var link = articleSuggestions[i]['url'];
+              $('#articlesearchResult').append("<li><a href='" + link + 
+                                   "' > <img src=" + imgsrc.url + 
+                                   "/> <div class='predictive_main'><h3>" +  title + "</h3></div></a></li>");
+            }
+          } 
+          else {
+            $('.articletitle').html("No Articles Found");
+            $('#articlesearchResult').empty();
+            //$('ul.ezpPth').show();
+          }
+          
+          if (l > 0) {
+            $('.title').html("Products Found");
+            search_result.empty();
+            for( var i = 0; i<4; i++){
+              var price = productSuggestions[i]['price'];
+              var title = productSuggestions[i]['title'];
+              var imgsrc = productSuggestions[i]['featured_image'];
+              var link = productSuggestions[i]['url'];
+              search_result.append("<li><a href='" + link + 
+                                   "' > <img src=" + imgsrc.url + 
+                                   "/> <div class='predictive_main'><h3>" +  title + "</h3><div class='predictive_product_price'>" + Shopify.formatMoney(price, mf) + "</div></div></a></li>");
+            }
+          }
+          else {
+            $('.title').html("No Products Found");
+            search_result.empty();
+            //$('ul.ezpPth').show();
+          }
+        }
+      });
+      $('.predictive-search__item--term').html('Search for "'+q+'"').show();
+    }
+    else {
+      setTimeout(function() {
+        search_result.empty();
+        $('.title').empty();
+        $('#articlesearchResult').empty();
+        $('.articletitle').empty();
+        $('.predictive-search__item--term').empty().hide();
+      }, 500);
+    }
+
+  });
+ 
+  $('button.close').on("click", function () {
+    $(this).parents().find('form').trigger("reset");
+    setTimeout(function() {
+      $('.autocomplete').find('ul#searchResult').empty();
+      $('.title').empty();
+    }, 1000);
+  });
+  //   predictive search end
+</script>
