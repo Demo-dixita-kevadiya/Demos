@@ -1,0 +1,10 @@
+function set_swatch_width_height(){
+  if($(".new_custom_swatch_Size .swatch-element").length){
+    --------content-------
+  }else{
+    setTimeout(function(){
+      set_swatch_width_height();
+    },1000);
+  }
+}
+set_swatch_width_height();
