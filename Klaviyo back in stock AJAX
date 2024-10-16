@@ -17,8 +17,65 @@
   <p klaviyo-bis-success=""  style="display:none;">Gotcha! We'll let you know.</p>
 </div>
 
+//JS new
+ $('body').on('click','[klaviyo-bis] [klaviyo-bis-btn]',function(e){ 
+      e.preventDefault();
+      var klaviyoClick = $(this).parents('.form-klaviyo-bis.klaviyo-active'); 
+      var klaviyoId = $(klaviyoClick).attr('data-klaviyo-id'),
+          productId = $(klaviyoClick).attr('data-product-id'),
+          variantId = $(klaviyoClick).attr('data-variant-id'),
+          email = $(klaviyoClick).find('[klaviyo-bis-email]').val();
+     
+      function isEmail(email) {
+        var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+        return regex.test(email);
+      }
+      if (isEmail(email)) {
+        $(klaviyoClick).find('[klaviyo-bis-error]').hide();
+        const payload = {
+        "data": {
+          "type": "back-in-stock-subscription",
+          "attributes": {
+            "profile": {
+              "data": {
+                  "type": "profile",
+                  "attributes": {
+                      "email": email,
+                  }
+              }
+            },
+            "channels": ["EMAIL"],
+          },
+          "relationships": {
+            "variant": {
+              "data": {
+                "type": "catalog-variant",
+                "id": "$shopify:::$default:::"+variantId
+              }
+            }
+          }
+        }
+      }
+      var requestOptions = {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json",
+            "revision":"2024-06-15"
+          },
+          body: JSON.stringify(payload),
+      };    
+      fetch("https://a.klaviyo.com/client/back-in-stock-subscriptions/?company_id=" + klaviyoId, requestOptions)
+        .then(result => {
+          $(klaviyoClick).find('[klaviyo-bis-success]').show();
+        }).catch(error => {
+          console.log('Error:', error);
+       });
+      } else {
+        $(klaviyoClick).find('[klaviyo-bis-error]').show();
+      }
+  });
 
-//JS
+//JS old
 <script>  
   $(document).ready(function(){
     var $form = $('[klaviyo-bis]');
